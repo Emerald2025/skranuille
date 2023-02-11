@@ -1,0 +1,27 @@
+{
+  "name": "shopify-app-openai",
+  "version": "1.0.0",
+  "description": "Une courte description de votre application",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/votrenomdutilisateur/votredepot"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "openai": "^3.1.0",
+    "shopify-api-node": "3.12.2"
+  },
+  "files": [
+    ".gitignore"
+  ],
+  "engines": {
+    "node": "14.x"
+  },
+  "scripts": {
+    "start": "node ./server/server.js",
+    "test": "mocha test/"
+  },
+  "main": "server.js",
+  "author": "Christophe Denis",
+  "license": "MIT"
+}

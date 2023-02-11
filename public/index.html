@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <title>Shopify SEO Optimizer</title>
+    <script src="https://cdn.jsdelivr.net/npm/openai@2.0.0/dist/openai.min.js"></script>
+  </head>
+  <body>
+    <h1>Shopify SEO Optimizer</h1>
+    <form>
+      <label for="select-collection">Sélectionner une collection:</label>
+      <select id="select-collection">
+        <option value="all">Toutes les collections</option>
+        <!-- Insert dynamic options for collections here -->
+      </select>
+      <br />
+      <label for="select-product">Sélectionner un produit:</label>
+      <select id="select-product">
+        <option value="all">Tous les produits</option>
+        <!-- Insert dynamic options for products here -->
+      </select>
+      <br />
+      <label for="optimize-title">Optimiser le titre:</label>
+      <input
+        type="checkbox"
+        id="optimize-title"
+        name="optimize-title"
+        value="true"
+      />
+      <br />
+      <label for="optimize-description">Optimiser la description:</label>
+      <input
+        type="checkbox"
+        id="optimize-description"
+        name="optimize-description"
+        value="true"
+      />
+      <br />
+      <label for="optimize-metatitle">Optimiser le metatitle:</label>
+      <input
+        type="checkbox"
+        id="optimize-metatitle"
+        name="optimize-metatitle"
+        value="true"
+      />
+      <br />
+      <label for="optimize-metadescription"
+        >Optimiser le metadescription:</label
+      >
+      <input
+        type="checkbox"
+        id="optimize-metadescription"
+        name="optimize-metadescription"
+        value="true"
+      />
+      <br />
+      <label for="optimize-altimages">Optimiser les alt images:</label>
+      <input
+        type="checkbox"
+        id="optimize-altimages"
+        name="optimize-altimages"
+        value="true"
+      />
+      <br />
+      <button type="submit" id="optimize-button">Optimiser</button>
+    </form>
+    <div id="results"></div>
+
+    <script>
+         console.log(process.env.OPENAI_KEY);
+        // Récupérer les éléments de formulaire
+      const collectionSelect = document.getElementById('select-collection');
+      const productSelect = document.getElementById('select-product');
+      const optimizeTitle = document.getElementById('optimize-title');
+      const optimizeDescription = document.getElementById('optimize-description');
+      const optimizeMetatitle = document.getElementById('optimize-metatitle');
+      const optimizeMetadescription = document.getElementById('optimize-metadescription');
+      const optimizeAltimages = document.getElementById('optimize-altimages');
+      const optimizeButton = document.getElementById('optimize-button');
+      const resultsDiv = document.getElementById('results');
+
+      // Récupérer les collections et les produits depuis l'API Shopify
+      async function fetchCollections() {
+        try {
+          const collections = await shopify.collection.list();
+          collections.forEach(collection => {
+            const option = document.createElement('option');
+            option.value = collection.id;
+            option.text = collection.title;
+            collectionSelect.add(option);
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      async function fetchProducts() {
+        try {
+          const products = await shopify.product.list();
+          products.forEach(product => {
+            const option = document.createElement('option');
+            option.value = product.id;
+            option.text = product.title;
+            productSelect.add(option);
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      // Appeler les fonctions pour récupérer les collections et les produits
+      fetchCollections();
+      fetchProducts();
+
+      // Gérer la soumission du formulaire
+      optimizeButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        // Récupérer les valeurs des champs de formulaire
+        const selectedCollectionId = collectionSelect.value;
+        const selectedProductId = productSelect.value;
+
+        try {
+          if (selectedProductId === 'all') {
+            // Optimiser tous les produits de la collection sélectionnée
+            const products = await shopify.product.list({ collection_id: selectedCollectionId });
+            products.forEach(async product => {
+              await optimizeProduct(product.id);
+            });
+          } else {
+            // Optimiser un produit spécifique
+            await optimizeProduct(selectedProductId);
+          }
+
+          resultsDiv.innerHTML = 'Les produits ont été optimisés avec succès!';
+        } catch (error) {
+          console.error(error);
+          resultsDiv.innerHTML = 'Une erreur est survenue lors de l\'optimisation des produits.';
+        }
+      });
+
+      // Fonction pour optimiser un produit
+      async function optimizeProduct(productId) {
+        try {
+          // Récupérer les informations du produit depuis l'API Shopify
+          const product = await shopify.product.get(productId);
+          let { title, body_html: description, metafields_global_title_tag: metatitle, metafields_global_description_tag: metadescription } = product;
+
+          // Vérifier si l'utilisateur a sélectionné d'optimiser le titre
+          if (optimizeTitle.checked) {
+            // Utiliser OpenAI pour optimiser le titre
+            const response = await openai.Completion.create({
+              prompt: `Optimize the title for SEO for the following product:
+                Title: ${title}`,
+              model: 'text-davinci-002'
+            });
+            title = response.choices[0].text;
+          }
+
+          // Vérifier si l'utilisateur a sélectionné d'optimiser la description
+           if (optimizeDescription.checked) {
+            // Utiliser OpenAI pour optimiser la description
+            const response = await openai.Completion.create({
+              prompt: `Optimize the description for SEO for the following product:
+                Description: ${description}`,
+              model: 'text-davinci-002'
+            });
+            description = response.choices[0].text;
+          }
+
+          // Vérifier si l'utilisateur a sélectionné d'optimiser le metatitle
+          if (optimizeMetatitle.checked) {
+            // Utiliser OpenAI pour optimiser le metatitle
+            const response = await openai.Completion.create({
+              prompt: `Optimize the metatitle for SEO for the following product:
+                Title: ${title}`,
+              model: 'text-davinci-002'
+            });
+            metatitle = response.choices[0].text;
+          }
+
+          // Vérifier si l'utilisateur a sélectionné d'optimiser le metadescription
+          if (optimizeMetadescription.checked) {
+            // Utiliser OpenAI pour optimiser le metadescription
+            const response = await openai.Completion.create({
+              prompt: `Optimize the metadescription for SEO for the following product:
+                Description: ${description}`,
+              model: 'text-davinci-002'
+            });
+            metadescription = response.choices[0].text;
+          }
+
+          // Vérifier si l'utilisateur a sélectionné d'optimiser les alt images
+          if (optimizeAltimages.checked) {
+            // Utiliser OpenAI pour optimiser les alt images
+            const response = await openai.Completion.create({
+              prompt: `Optimize the alt images for SEO for the following product:
+                Title: ${title}`,
+              model: 'text-davinci-002'
+            });
+            altimages = response.choices[0].text;
+          }
+          async function checkAndOptimizeProductTitle(product) {
+        let { title } = product;
+        // Vérifiez la longueur du titre
+        if (title.length > 70) {
+          // Utilisez un modèle de traitement du langage naturel pour optimiser le titre
+          const response = await openai.Completion.create({
+            prompt: `Optimize the title for SEO for the following product:
+              Title: ${title}`,
+            model: 'text-davinci-002'
+          });
+          title = response.choices[0].text;
+        }
+        return title;
+      }
+      async function optimizeProduct(productId) {
+        try {
+          // Récupérer les informations du produit depuis l'API Shopify
+          let product = await shopify.product.get(productId);
+          // Check and optimize the title
+          product.title = await checkAndOptimizeProductTitle(product);
+
+          // Vérifier si l'utilisateur a sélectionné d'optimiser la description
+          if (optimizeDescription.checked) {
+            // Utiliser OpenAI pour optimiser la description
+            const response = await openai.Completion.create({
+              prompt: `Optimize the description for SEO for the following product:
+                Description: ${product.body_html}`,
+              model: 'text-davinci-002'
+            });
+            product.body_html = response.choices[0].text;
+          }
+          // update the product on Shopify
+          await shopify.product.update(product);
+        } catch (error) {
+          console.error(error);
+          resultsDiv.innerHTML = 'Une erreur est survenue lors de l\'optimisation des produits.';
+        }
+      }
+    </script>
+  </body>
+</html>

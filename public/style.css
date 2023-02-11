@@ -1,0 +1,57 @@
+/* Réinitialise les styles par défaut */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+/* Définir la police de caractères pour le corps du texte */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #F5F5F5; /* Couleur de fond */
+    text-align:center; /* aligner le texte au centre */
+}
+
+/* Définir les styles pour les en-têtes */
+h1,
+h2,
+h3 {
+    font-weight: bold;
+    text-align:center; /* aligner le texte au centre */
+}
+
+/* Définir les styles pour les sections */
+section {
+    padding: 20px;
+}
+
+/* Styles pour les formulaires */
+form {
+    margin: 20px 0;
+    text-align:center; /* aligner le texte au centre */
+}
+form input,
+form textarea {
+    padding: 10px;
+    margin: 10px 0;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #cccccc; /* Ajout d'une bordure */
+}
+form input[type="submit"] {
+    background-color: #1e90ff; /* Couleur de fond du bouton */
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+form input[type="submit"]:hover {
+    background-color: #333333; /* Couleur de fond au survol */
+}
+
+/* Styles pour les options de sélection */
+select {
+    padding: 10px;
+    margin: 10px 0;
+    width: 100%;
+    box-sizing:
+
